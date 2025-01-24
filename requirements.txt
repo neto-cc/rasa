@@ -1,6 +1,5 @@
+
 flask
 requests
-rasa==3.4.0
-pip>=24.3.1
-setuptools>=65.0.0
-wheel
+rasa
+
