@@ -1,0 +1,12 @@
+# バイナリファイルを除外
+Lib/site-packages/**/*.dll
+Lib/site-packages/**/*.pyd
+
+# キャッシュファイルを除外
+__pycache__/
+*.py[cod]
+
+# 仮想環境を除外
+.venv/
+env/
+
