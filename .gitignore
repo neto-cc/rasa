@@ -1,12 +1,14 @@
-# バイナリファイルを除外
-Lib/site-packages/**/*.dll
-Lib/site-packages/**/*.pyd
+# 仮想環境フォルダを無視
+.venv/
+env/
 
-# キャッシュファイルを除外
+# Pythonキャッシュファイルを無視
 __pycache__/
 *.py[cod]
 
-# 仮想環境を除外
-.venv/
-env/
+# 大きなバイナリファイルを無視
+Lib/site-packages/**/*.dll
+Lib/site-packages/**/*.pyd
+Lib/site-packages/tensorflow/
+Lib/site-packages/jaxlib/
 
