@@ -6,9 +6,4 @@ env/
 __pycache__/
 *.py[cod]
 
-# 大きなバイナリファイルを無視
-Lib/site-packages/**/*.dll
-Lib/site-packages/**/*.pyd
-Lib/site-packages/tensorflow/
-Lib/site-packages/jaxlib/
 
