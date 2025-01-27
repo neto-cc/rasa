@@ -4,9 +4,11 @@ env:
 
 services:
   - type: web
-    name: rasa-app
+    name: my-flask-app
     env: python
     buildCommand: "pip install -r requirements.txt"
     startCommand: "python app.py"
-    port: 10000  # Renderの指定ポート
+    envVars:
+      - key: PORT
+        value: "5000"  # 必要なポート番号を指定
 
