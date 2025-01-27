@@ -2,3 +2,6 @@ Lib/site-packages/**/*.dll filter=lfs diff=lfs merge=lfs -text
 Lib/site-packages/**/*.pyd filter=lfs diff=lfs merge=lfs -text
 rasa_env/Lib/site-packages/sudachidict_core/resources/system.dic filter=lfs diff=lfs merge=lfs -text
 rasa_env/Lib/site-packages/clang/native/libclang.dll filter=lfs diff=lfs merge=lfs -text
+*.dic filter=lfs diff=lfs merge=lfs -text
+*.dll filter=lfs diff=lfs merge=lfs -text
+
