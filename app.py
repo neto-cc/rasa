@@ -14,7 +14,7 @@ def chat():
     
     # Rasa サーバーの webhook URL を指定します
     rasa_response = requests.post(
-        "https://rasa-vt1z.onrender.com/webhook",  # Render 上の Rasa の URL
+        "http://0.0.0.0:5005/webhook",  # Render 上の Rasa の URL
         json={"sender": "user", "message": user_message}
     )
     
