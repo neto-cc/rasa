@@ -1,6 +1,8 @@
 env:
   - name: PYTHON_VERSION
     value: "3.10.10"
+  - name: PORT
+    value: "5005"
 
 services:
   - type: web
@@ -10,5 +12,5 @@ services:
     startCommand: "python app.py"
     envVars:
       - key: PORT
-        value: "5000"  # 必要なポート番号を指定
+        value: "5005"  # 必要なポート番号を指定
 
