@@ -1,3 +1,7 @@
 env:
   - name: PYTHON_VERSION
+<<<<<<< HEAD
     value: "3.10.0rc2"
+=======
+    value: "3.10.0rc2"
+>>>>>>> aef3376e01cbea150abc9c5377cf923f7ef68e56
