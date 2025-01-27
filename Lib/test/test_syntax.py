@@ -403,7 +403,7 @@ SyntaxError: Generator expression must be parenthesized
 >>> class C(x for x in L):
 ...     pass
 Traceback (most recent call last):
-SyntaxError: expected ':'
+SyntaxError: invalid syntax
 
 >>> def g(*args, **kwargs):
 ...     print(args, sorted(kwargs.items()))
@@ -524,9 +524,15 @@ SyntaxError: expression cannot contain assignment, perhaps you meant "=="?
 >>> f((x)=2)
 Traceback (most recent call last):
 SyntaxError: expression cannot contain assignment, perhaps you meant "=="?
->>> f(True=2)
+>>> f(True=1)
 Traceback (most recent call last):
-SyntaxError: expression cannot contain assignment, perhaps you meant "=="?
+SyntaxError: cannot assign to True
+>>> f(False=1)
+Traceback (most recent call last):
+SyntaxError: cannot assign to False
+>>> f(None=1)
+Traceback (most recent call last):
+SyntaxError: cannot assign to None
 >>> f(__debug__=1)
 Traceback (most recent call last):
 SyntaxError: cannot assign to __debug__
@@ -753,17 +759,22 @@ leading to spurious errors.
      ...
    SyntaxError: cannot assign to function call here. Maybe you meant '==' instead of '='?
 
-    Missing ':' before suites:
+Missing ':' before suites:
 
-    >>> def f()
-    ...     pass
-    Traceback (most recent call last):
-    SyntaxError: expected ':'
+   >>> def f()
+   ...     pass
+   Traceback (most recent call last):
+   SyntaxError: expected ':'
 
-    >>> class A
-    ...     pass
-    Traceback (most recent call last):
-    SyntaxError: expected ':'
+   >>> class A
+   ...     pass
+   Traceback (most recent call last):
+   SyntaxError: expected ':'
+
+   >>> class R&D:
+   ...     pass
+   Traceback (most recent call last):
+   SyntaxError: invalid syntax
 
    >>> if 1
    ...   pass
@@ -796,6 +807,11 @@ leading to spurious errors.
    ...   pass
    Traceback (most recent call last):
    SyntaxError: expected ':'
+
+   >>> for x in range 10:
+   ...   pass
+   Traceback (most recent call last):
+   SyntaxError: invalid syntax
 
    >>> while True
    ...   pass
@@ -842,6 +858,11 @@ leading to spurious errors.
    Traceback (most recent call last):
    SyntaxError: expected ':'
 
+   >>> with block ad something:
+   ...   pass
+   Traceback (most recent call last):
+   SyntaxError: invalid syntax
+
    >>> try
    ...   pass
    Traceback (most recent call last):
@@ -859,6 +880,12 @@ leading to spurious errors.
    ...       pass
    Traceback (most recent call last):
    SyntaxError: expected ':'
+
+   >>> match x x:
+   ...   case list():
+   ...       pass
+   Traceback (most recent call last):
+   SyntaxError: invalid syntax
 
    >>> match x:
    ...   case list()
@@ -943,9 +970,19 @@ Incomplete dictionary literals
    Traceback (most recent call last):
    SyntaxError: expression expected after dictionary key and ':'
 
-   # Ensure that the error is not raise for syntax errors that happen after sets
+   # Ensure that the error is not raised for syntax errors that happen after sets
 
    >>> {1} $
+   Traceback (most recent call last):
+   SyntaxError: invalid syntax
+
+   # Ensure that the error is not raised for invalid expressions
+
+   >>> {1: 2, 3: foo(,), 4: 5}
+   Traceback (most recent call last):
+   SyntaxError: invalid syntax
+
+   >>> {1: $, 2: 3}
    Traceback (most recent call last):
    SyntaxError: invalid syntax
 
@@ -1005,6 +1042,13 @@ Specialized indentation errors:
    ... pass
    Traceback (most recent call last):
    IndentationError: expected an indented block after 'try' statement on line 1
+
+   >>> try:
+   ...     something()
+   ... except:
+   ... pass
+   Traceback (most recent call last):
+   IndentationError: expected an indented block after 'except' statement on line 3
 
    >>> try:
    ...     something()
@@ -1273,7 +1317,8 @@ from test import support
 class SyntaxTestCase(unittest.TestCase):
 
     def _check_error(self, code, errtext,
-                     filename="<testcase>", mode="exec", subclass=None, lineno=None, offset=None):
+                     filename="<testcase>", mode="exec", subclass=None,
+                     lineno=None, offset=None, end_lineno=None, end_offset=None):
         """Check that compiling code raises SyntaxError with errtext.
 
         errtest is a regular expression that must be present in the
@@ -1293,6 +1338,11 @@ class SyntaxTestCase(unittest.TestCase):
                 self.assertEqual(err.lineno, lineno)
             if offset is not None:
                 self.assertEqual(err.offset, offset)
+            if end_lineno is not None:
+                self.assertEqual(err.end_lineno, end_lineno)
+            if end_offset is not None:
+                self.assertEqual(err.end_offset, end_offset)
+
         else:
             self.fail("compile() did not raise SyntaxError")
 
@@ -1360,9 +1410,6 @@ class SyntaxTestCase(unittest.TestCase):
             """
         self._check_error(source, "parameter and nonlocal", lineno=3)
 
-    def test_break_outside_loop(self):
-        self._check_error("break", "outside loop")
-
     def test_yield_outside_function(self):
         self._check_error("if 0: yield",                "outside function")
         self._check_error("if 0: yield\nelse:  x=1",    "outside function")
@@ -1391,20 +1438,27 @@ class SyntaxTestCase(unittest.TestCase):
                           "outside function")
 
     def test_break_outside_loop(self):
-        self._check_error("if 0: break",             "outside loop")
-        self._check_error("if 0: break\nelse:  x=1",  "outside loop")
-        self._check_error("if 1: pass\nelse: break", "outside loop")
-        self._check_error("class C:\n  if 0: break", "outside loop")
+        msg = "outside loop"
+        self._check_error("break", msg, lineno=1)
+        self._check_error("if 0: break", msg, lineno=1)
+        self._check_error("if 0: break\nelse:  x=1", msg, lineno=1)
+        self._check_error("if 1: pass\nelse: break", msg, lineno=2)
+        self._check_error("class C:\n  if 0: break", msg, lineno=2)
         self._check_error("class C:\n  if 1: pass\n  else: break",
-                          "outside loop")
+                          msg, lineno=3)
+        self._check_error("with object() as obj:\n break",
+                          msg, lineno=2)
 
     def test_continue_outside_loop(self):
-        self._check_error("if 0: continue",             "not properly in loop")
-        self._check_error("if 0: continue\nelse:  x=1", "not properly in loop")
-        self._check_error("if 1: pass\nelse: continue", "not properly in loop")
-        self._check_error("class C:\n  if 0: continue", "not properly in loop")
+        msg = "not properly in loop"
+        self._check_error("if 0: continue", msg, lineno=1)
+        self._check_error("if 0: continue\nelse:  x=1", msg, lineno=1)
+        self._check_error("if 1: pass\nelse: continue", msg, lineno=2)
+        self._check_error("class C:\n  if 0: continue", msg, lineno=2)
         self._check_error("class C:\n  if 1: pass\n  else: continue",
-                          "not properly in loop")
+                          msg, lineno=3)
+        self._check_error("with object() as obj:\n    continue",
+                          msg, lineno=2)
 
     def test_unexpected_indent(self):
         self._check_error("foo()\n bar()\n", "unexpected indent",
@@ -1433,6 +1487,11 @@ class SyntaxTestCase(unittest.TestCase):
                           "iterable argument unpacking follows "
                           "keyword argument unpacking")
 
+    def test_generator_in_function_call(self):
+        self._check_error("foo(x,    y for y in range(3) for z in range(2) if z    , p)",
+                          "Generator expression must be parenthesized",
+                          lineno=1, end_lineno=1, offset=11, end_offset=53)
+
     def test_empty_line_after_linecont(self):
         # See issue-40847
         s = r"""\
@@ -1445,6 +1504,36 @@ pass
             compile(s, '<string>', 'exec')
         except SyntaxError:
             self.fail("Empty line after a line continuation character is valid.")
+
+        # See issue-46091
+        s1 = r"""\
+def fib(n):
+    \
+'''Print a Fibonacci series up to n.'''
+    \
+a, b = 0, 1
+"""
+        s2 = r"""\
+def fib(n):
+    '''Print a Fibonacci series up to n.'''
+    a, b = 0, 1
+"""
+        try:
+            self.assertEqual(compile(s1, '<string>', 'exec'), compile(s2, '<string>', 'exec'))
+        except SyntaxError:
+            self.fail("Indented statement over multiple lines is valid")
+
+    def test_continuation_bad_indentation(self):
+        # Check that code that breaks indentation across multiple lines raises a syntax error
+
+        code = r"""\
+if x:
+    y = 1
+  \
+  foo = 1
+        """
+
+        self.assertRaises(IndentationError, exec, code)
 
     @support.cpython_only
     def test_nested_named_except_blocks(self):
@@ -1476,7 +1565,13 @@ def func2():
     def test_invalid_line_continuation_error_position(self):
         self._check_error(r"a = 3 \ 4",
                           "unexpected character after line continuation character",
-                          lineno=1, offset=9)
+                          lineno=1, offset=8)
+        self._check_error('1,\\#\n2',
+                          "unexpected character after line continuation character",
+                          lineno=1, offset=4)
+        self._check_error('\nfgdfgf\n1,\\#\n2\n',
+                          "unexpected character after line continuation character",
+                          lineno=3, offset=4)
 
     def test_invalid_line_continuation_left_recursive(self):
         # Check bpo-42218: SyntaxErrors following left-recursive rules
@@ -1490,8 +1585,27 @@ def func2():
         for paren in "([{":
             self._check_error(paren + "1 + 2", f"\\{paren}' was never closed")
 
+        for paren in "([{":
+            self._check_error(f"a = {paren} 1, 2, 3\nb=3", f"\\{paren}' was never closed")
+
         for paren in ")]}":
             self._check_error(paren + "1 + 2", f"unmatched '\\{paren}'")
+
+        # Some more complex examples:
+        code = """\
+func(
+    a=["unclosed], # Need a quote in this comment: "
+    b=2,
+)
+"""
+        self._check_error(code, "parenthesis '\\)' does not match opening parenthesis '\\['")
+
+    def test_error_string_literal(self):
+
+        self._check_error("'blech", "unterminated string literal")
+        self._check_error('"blech', "unterminated string literal")
+        self._check_error("'''blech", "unterminated triple-quoted string literal")
+        self._check_error('"""blech', "unterminated triple-quoted string literal")
 
     def test_match_call_does_not_raise_syntax_error(self):
         code = """
@@ -1552,6 +1666,22 @@ while 1:
                      break
 """
         self._check_error(source, "too many statically nested blocks")
+
+    @support.cpython_only
+    def test_error_on_parser_stack_overflow(self):
+        source = "-" * 100000 + "4"
+        for mode in ["exec", "eval", "single"]:
+            with self.subTest(mode=mode):
+                with self.assertRaises(MemoryError):
+                    compile(source, "<string>", mode)
+
+    @support.cpython_only
+    def test_deep_invalid_rule(self):
+        # Check that a very deep invalid rule in the PEG
+        # parser doesn't have exponential backtracking.
+        source = "d{{{{{{{{{{{{{{{{{{{{{{{{{```{{{{{{{ef f():y"
+        with self.assertRaises(SyntaxError):
+            compile(source, "<string>", "exec")
 
 
 def test_main():

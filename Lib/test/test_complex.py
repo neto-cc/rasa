@@ -306,15 +306,10 @@ class ComplexTest(unittest.TestCase):
         self.assertClose(complex(5.3, 9.8).conjugate(), 5.3-9.8j)
 
     def test_constructor(self):
-        class OS:
+        class NS:
             def __init__(self, value): self.value = value
             def __complex__(self): return self.value
-        class NS(object):
-            def __init__(self, value): self.value = value
-            def __complex__(self): return self.value
-        self.assertEqual(complex(OS(1+10j)), 1+10j)
         self.assertEqual(complex(NS(1+10j)), 1+10j)
-        self.assertRaises(TypeError, complex, OS(None))
         self.assertRaises(TypeError, complex, NS(None))
         self.assertRaises(TypeError, complex, {})
         self.assertRaises(TypeError, complex, NS(1.5))
@@ -777,8 +772,6 @@ class ComplexTest(unittest.TestCase):
         self.assertEqual(format(complex(INF, 1), 'F'), 'INF+1.000000j')
         self.assertEqual(format(complex(INF, -1), 'F'), 'INF-1.000000j')
 
-def test_main():
-    support.run_unittest(ComplexTest)
 
 if __name__ == "__main__":
-    test_main()
+    unittest.main()

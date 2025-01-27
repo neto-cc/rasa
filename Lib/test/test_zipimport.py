@@ -547,8 +547,9 @@ class UncompressedZipImportTestCase(ImportHooksBaseTestCase):
         # Check that the cached data is removed if the file is deleted
         os.remove(TEMP_ZIP)
         zi.invalidate_caches()
-        self.assertIsNone(zi._files)
+        self.assertFalse(zi._files)
         self.assertIsNone(zipimport._zip_directory_cache.get(zi.archive))
+        self.assertIsNone(zi.find_spec("name_does_not_matter"))
 
     def testZipImporterMethodsInSubDirectory(self):
         packdir = TESTPACK + os.sep
@@ -652,7 +653,10 @@ class UncompressedZipImportTestCase(ImportHooksBaseTestCase):
         sys.path.insert(0, TEMP_ZIP)
         mod = importlib.import_module(TESTMOD)
         self.assertEqual(mod.test(1), 1)
-        self.assertRaises(AssertionError, mod.test, False)
+        if __debug__:
+            self.assertRaises(AssertionError, mod.test, False)
+        else:
+            self.assertEqual(mod.test(0), 0)
 
     def testImport_WithStuff(self):
         # try importing from a zipfile which contains additional
@@ -708,8 +712,8 @@ class UncompressedZipImportTestCase(ImportHooksBaseTestCase):
     def doTraceback(self, module):
         try:
             module.do_raise()
-        except:
-            tb = sys.exc_info()[2].tb_next
+        except Exception as e:
+            tb = e.__traceback__.tb_next
 
             f,lno,n,line = extract_tb(tb, 1)[0]
             self.assertEqual(line, raise_src.strip())
@@ -855,15 +859,9 @@ class BadFileZipImportTestCase(unittest.TestCase):
             zipimport._zip_directory_cache.clear()
 
 
-def test_main():
-    try:
-        support.run_unittest(
-              UncompressedZipImportTestCase,
-              CompressedZipImportTestCase,
-              BadFileZipImportTestCase,
-            )
-    finally:
-        os_helper.unlink(TESTMOD)
+def tearDownModule():
+    os_helper.unlink(TESTMOD)
+
 
 if __name__ == "__main__":
-    test_main()
+    unittest.main()

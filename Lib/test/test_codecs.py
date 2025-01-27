@@ -32,7 +32,7 @@ def coding_checker(self, coder):
 # On small versions of Windows like Windows IoT or Windows Nano Server not all codepages are present
 def is_code_page_present(cp):
     from ctypes import POINTER, WINFUNCTYPE, WinDLL
-    from ctypes.wintypes import BOOL, UINT, BYTE, WCHAR, UINT, DWORD
+    from ctypes.wintypes import BOOL, BYTE, WCHAR, UINT, DWORD
 
     MAX_LEADBYTES = 12  # 5 ranges, 2 bytes ea., 0 term.
     MAX_DEFAULTCHAR = 2 # single or double byte
@@ -114,7 +114,7 @@ class ReadTest(MixInCheckStateHandling):
         q = Queue(b"")
         r = codecs.getreader(self.encoding)(q)
         result = ""
-        for (c, partialresult) in zip(input.encode(self.encoding), partialresults):
+        for (c, partialresult) in zip(input.encode(self.encoding), partialresults, strict=True):
             q.write(bytes([c]))
             result += r.read()
             self.assertEqual(result, partialresult)
@@ -125,7 +125,7 @@ class ReadTest(MixInCheckStateHandling):
         # do the check again, this time using an incremental decoder
         d = codecs.getincrementaldecoder(self.encoding)()
         result = ""
-        for (c, partialresult) in zip(input.encode(self.encoding), partialresults):
+        for (c, partialresult) in zip(input.encode(self.encoding), partialresults, strict=True):
             result += d.decode(bytes([c]))
             self.assertEqual(result, partialresult)
         # check that there's nothing left in the buffers
@@ -135,7 +135,7 @@ class ReadTest(MixInCheckStateHandling):
         # Check whether the reset method works properly
         d.reset()
         result = ""
-        for (c, partialresult) in zip(input.encode(self.encoding), partialresults):
+        for (c, partialresult) in zip(input.encode(self.encoding), partialresults, strict=True):
             result += d.decode(bytes([c]))
             self.assertEqual(result, partialresult)
         # check that there's nothing left in the buffers
@@ -705,7 +705,8 @@ class UTF16Test(ReadTest, unittest.TestCase):
                                          "spamspam", self.spambe)
 
     def test_bug691291(self):
-        # Files are always opened in binary mode, even if no binary mode was
+        # If encoding is not None, then
+        # files are always opened in binary mode, even if no binary mode was
         # specified.  This means that no automatic conversion of '\n' is done
         # on reading and writing.
         s1 = 'Hello\r\nworld\r\n'
@@ -1534,6 +1535,12 @@ class IDNACodecTest(unittest.TestCase):
         self.assertEqual("pyth\xf6n.org".encode("idna"), b"xn--pythn-mua.org")
         self.assertEqual("pyth\xf6n.org.".encode("idna"), b"xn--pythn-mua.org.")
 
+    def test_builtin_decode_length_limit(self):
+        with self.assertRaisesRegex(UnicodeError, "too long"):
+            (b"xn--016c"+b"a"*1100).decode("idna")
+        with self.assertRaisesRegex(UnicodeError, "too long"):
+            (b"xn--016c"+b"a"*70).decode("idna")
+
     def test_stream(self):
         r = codecs.getreader("idna")(io.BytesIO(b"abc"))
         r.read(3)
@@ -2341,7 +2348,11 @@ class TypesTest(unittest.TestCase):
                          (r"\x5c\x55\x30\x30\x31\x31\x30\x30\x30\x30", 10))
 
 
-class UnicodeEscapeTest(unittest.TestCase):
+class UnicodeEscapeTest(ReadTest, unittest.TestCase):
+    encoding = "unicode-escape"
+
+    test_lone_surrogates = None
+
     def test_empty(self):
         self.assertEqual(codecs.unicode_escape_encode(""), (b"", 0))
         self.assertEqual(codecs.unicode_escape_decode(b""), ("", 0))
@@ -2428,8 +2439,50 @@ class UnicodeEscapeTest(unittest.TestCase):
         self.assertEqual(decode(br"\U00110000", "ignore"), ("", 10))
         self.assertEqual(decode(br"\U00110000", "replace"), ("\ufffd", 10))
 
+    def test_partial(self):
+        self.check_partial(
+            "\x00\t\n\r\\\xff\uffff\U00010000",
+            [
+                '',
+                '',
+                '',
+                '\x00',
+                '\x00',
+                '\x00\t',
+                '\x00\t',
+                '\x00\t\n',
+                '\x00\t\n',
+                '\x00\t\n\r',
+                '\x00\t\n\r',
+                '\x00\t\n\r\\',
+                '\x00\t\n\r\\',
+                '\x00\t\n\r\\',
+                '\x00\t\n\r\\',
+                '\x00\t\n\r\\\xff',
+                '\x00\t\n\r\\\xff',
+                '\x00\t\n\r\\\xff',
+                '\x00\t\n\r\\\xff',
+                '\x00\t\n\r\\\xff',
+                '\x00\t\n\r\\\xff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff\U00010000',
+            ]
+        )
 
-class RawUnicodeEscapeTest(unittest.TestCase):
+class RawUnicodeEscapeTest(ReadTest, unittest.TestCase):
+    encoding = "raw-unicode-escape"
+
+    test_lone_surrogates = None
+
     def test_empty(self):
         self.assertEqual(codecs.raw_unicode_escape_encode(""), (b"", 0))
         self.assertEqual(codecs.raw_unicode_escape_decode(b""), ("", 0))
@@ -2477,6 +2530,35 @@ class RawUnicodeEscapeTest(unittest.TestCase):
         self.assertRaises(UnicodeDecodeError, decode, br"\U00110000")
         self.assertEqual(decode(br"\U00110000", "ignore"), ("", 10))
         self.assertEqual(decode(br"\U00110000", "replace"), ("\ufffd", 10))
+
+    def test_partial(self):
+        self.check_partial(
+            "\x00\t\n\r\\\xff\uffff\U00010000",
+            [
+                '\x00',
+                '\x00\t',
+                '\x00\t\n',
+                '\x00\t\n\r',
+                '\x00\t\n\r',
+                '\x00\t\n\r\\\xff',
+                '\x00\t\n\r\\\xff',
+                '\x00\t\n\r\\\xff',
+                '\x00\t\n\r\\\xff',
+                '\x00\t\n\r\\\xff',
+                '\x00\t\n\r\\\xff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff',
+                '\x00\t\n\r\\\xff\uffff\U00010000',
+            ]
+        )
 
 
 class EscapeEncodeTest(unittest.TestCase):

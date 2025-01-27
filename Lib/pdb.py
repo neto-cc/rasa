@@ -1248,6 +1248,12 @@ class Pdb(bdb.Bdb, cmd.Cmd):
         if last is None:
             last = first + 10
         filename = self.curframe.f_code.co_filename
+        # gh-93696: stdlib frozen modules provide a useful __file__
+        # this workaround can be removed with the closure of gh-89815
+        if filename.startswith("<frozen"):
+            tmp = self.curframe.f_globals.get("__file__")
+            if isinstance(tmp, str):
+                filename = tmp
         breaklist = self.get_file_breaks(filename)
         try:
             lines = linecache.getlines(filename, self.curframe.f_globals)
@@ -1492,6 +1498,9 @@ class Pdb(bdb.Bdb, cmd.Cmd):
             if sys.flags.optimize >= 2:
                 self.error('No help for %r; please do not run Python with -OO '
                            'if you need command help' % arg)
+                return
+            if command.__doc__ is None:
+                self.error('No help for %r; __doc__ string missing' % arg)
                 return
             self.message(command.__doc__.rstrip())
 

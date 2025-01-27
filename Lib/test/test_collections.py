@@ -668,6 +668,7 @@ class TestNamedTuple(unittest.TestCase):
         a.w = 5
         self.assertEqual(a.__dict__, {'w': 5})
 
+    @support.cpython_only
     def test_field_descriptor(self):
         Point = namedtuple('Point', 'x y')
         p = Point(11, 22)
@@ -787,6 +788,8 @@ class TestOneTrickPonyABCs(ABCTestCase):
             def __await__(self):
                 yield
 
+        self.validate_abstract_methods(Awaitable, '__await__')
+
         non_samples = [None, int(), gen(), object()]
         for x in non_samples:
             self.assertNotIsInstance(x, Awaitable)
@@ -836,6 +839,8 @@ class TestOneTrickPonyABCs(ABCTestCase):
                 super().throw(typ, val, tb)
             def __await__(self):
                 yield
+
+        self.validate_abstract_methods(Coroutine, '__await__', 'send', 'throw')
 
         non_samples = [None, int(), gen(), object(), Bar()]
         for x in non_samples:
@@ -1579,6 +1584,7 @@ class TestCollectionABCs(ABCTestCase):
         containers = [
             seq,
             ItemsView({1: nan, 2: obj}),
+            KeysView({1: nan, 2: obj}),
             ValuesView({1: nan, 2: obj})
         ]
         for container in containers:
@@ -1594,7 +1600,7 @@ class TestCollectionABCs(ABCTestCase):
         self.assertSetEqual(set(s1), set(s2))
 
     def test_Set_from_iterable(self):
-        """Verify _from_iterable overriden to an instance method works."""
+        """Verify _from_iterable overridden to an instance method works."""
         class SetUsingInstanceFromIterable(MutableSet):
             def __init__(self, values, created_by):
                 if not created_by:
@@ -1842,6 +1848,8 @@ class TestCollectionABCs(ABCTestCase):
         mymap['red'] = 5
         self.assertIsInstance(mymap.keys(), Set)
         self.assertIsInstance(mymap.keys(), KeysView)
+        self.assertIsInstance(mymap.values(), Collection)
+        self.assertIsInstance(mymap.values(), ValuesView)
         self.assertIsInstance(mymap.items(), Set)
         self.assertIsInstance(mymap.items(), ItemsView)
 
@@ -1917,6 +1925,7 @@ class TestCollectionABCs(ABCTestCase):
             self.assertFalse(issubclass(sample, ByteString))
         self.assertNotIsInstance(memoryview(b""), ByteString)
         self.assertFalse(issubclass(memoryview, ByteString))
+        self.validate_abstract_methods(ByteString, '__getitem__', '__len__')
 
     def test_MutableSequence(self):
         for sample in [tuple, str, bytes]:

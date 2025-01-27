@@ -191,6 +191,19 @@ if 1:
         self.assertEqual(eval("0o777"), 511)
         self.assertEqual(eval("-0o0000010"), -8)
 
+    def test_int_literals_too_long(self):
+        n = 3000
+        source = f"a = 1\nb = 2\nc = {'3'*n}\nd = 4"
+        with support.adjust_int_max_str_digits(n):
+            compile(source, "<long_int_pass>", "exec")  # no errors.
+        with support.adjust_int_max_str_digits(n-1):
+            with self.assertRaises(SyntaxError) as err_ctx:
+                compile(source, "<long_int_fail>", "exec")
+            exc = err_ctx.exception
+            self.assertEqual(exc.lineno, 3)
+            self.assertIn('Exceeds the limit ', str(exc))
+            self.assertIn(' Consider hexadecimal ', str(exc))
+
     def test_unary_minus(self):
         # Verify treatment of unary minus on negative numbers SF bug #660455
         if sys.maxsize == 2147483647:
@@ -502,6 +515,7 @@ if 1:
         self.compile_single("if x:\n   f(x)")
         self.compile_single("if x:\n   f(x)\nelse:\n   g(x)")
         self.compile_single("class T:\n   pass")
+        self.compile_single("c = '''\na=1\nb=2\nc=3\n'''")
 
     def test_bad_single_statement(self):
         self.assertInvalidSingle('1\n2')
@@ -512,6 +526,7 @@ if 1:
         self.assertInvalidSingle('f()\n# blah\nblah()')
         self.assertInvalidSingle('f()\nxy # blah\nblah()')
         self.assertInvalidSingle('x = 5 # comment\nx = 6\n')
+        self.assertInvalidSingle("c = '''\nd=1\n'''\na = 1\n\nb = 2\n")
 
     def test_particularly_evil_undecodable(self):
         # Issue 24022
@@ -647,6 +662,17 @@ if 1:
 
         self.assertIs(f1.__code__.co_linetable, f2.__code__.co_linetable)
         self.assertIs(f1.__code__.co_code, f2.__code__.co_code)
+
+    # Stripping unused constants is not a strict requirement for the
+    # Python semantics, it's a more an implementation detail.
+    @support.cpython_only
+    def test_strip_unused_consts(self):
+        # Python 3.10rc1 appended None to co_consts when None is not used
+        # at all. See bpo-45056.
+        def f1():
+            "docstring"
+            return 42
+        self.assertEqual(f1.__code__.co_consts, ("docstring", 42))
 
     # This is a regression test for a CPython specific peephole optimizer
     # implementation bug present in a few releases.  It's assertion verifies
@@ -958,6 +984,38 @@ if 1:
             elif instr.opname in HANDLED_JUMPS:
                 self.assertNotEqual(instr.arg, (line + 1)*INSTR_SIZE)
 
+    def test_compare_positions(self):
+        for opname, op in [
+            ("COMPARE_OP", "<"),
+            ("COMPARE_OP", "<="),
+            ("COMPARE_OP", ">"),
+            ("COMPARE_OP", ">="),
+            ("CONTAINS_OP", "in"),
+            ("CONTAINS_OP", "not in"),
+            ("IS_OP", "is"),
+            ("IS_OP", "is not"),
+        ]:
+            expr = f'a {op} b {op} c'
+            expected_lines = 2 * [2]
+            for source in [
+                f"\\\n{expr}", f'if \\\n{expr}: x', f"x if \\\n{expr} else y"
+            ]:
+                code = compile(source, "<test>", "exec")
+                all_lines = (
+                    line
+                    for start, stop, line in code.co_lines()
+                    for _ in range(start, stop, 2)
+                )
+                actual_lines = [
+                    line
+                    for instruction, line in zip(
+                        dis.get_instructions(code), all_lines, strict=True
+                    )
+                    if instruction.opname == opname
+                ]
+                with self.subTest(source):
+                    self.assertEqual(actual_lines, expected_lines)
+
 
 class TestExpressionStackSize(unittest.TestCase):
     # These tests check that the computed stack size for a code object
@@ -1010,7 +1068,7 @@ class TestExpressionStackSize(unittest.TestCase):
         kwargs = (f'a{i}=x' for i in range(self.N))
         self.check_stack_size("f(" +  ", ".join(kwargs) + ")")
 
-    def test_func_args(self):
+    def test_meth_args(self):
         self.check_stack_size("o.m(" + "x, " * self.N + ")")
 
     def test_meth_kwargs(self):
@@ -1021,6 +1079,12 @@ class TestExpressionStackSize(unittest.TestCase):
         code = "def f(x):\n"
         code += "   x and x\n" * self.N
         self.check_stack_size(code)
+
+    def test_stack_3050(self):
+        M = 3050
+        code = "x," * M + "=t"
+        # This raised on 3.10.0 to 3.10.5
+        compile(code, "<foo>", "single")
 
 
 class TestStackSizeStability(unittest.TestCase):

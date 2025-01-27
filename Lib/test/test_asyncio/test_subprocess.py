@@ -228,7 +228,7 @@ class SubprocessMixin:
         # buffer large enough to feed the whole pipe buffer
         large_data = b'x' * support.PIPE_MAX_SIZE
 
-        # the program ends before the stdin can be feeded
+        # the program ends before the stdin can be fed
         proc = self.loop.run_until_complete(
             asyncio.create_subprocess_exec(
                 sys.executable, '-c', 'pass',
@@ -399,6 +399,26 @@ class SubprocessMixin:
 
         output, exitcode = self.loop.run_until_complete(empty_error())
         self.assertEqual(output, None)
+        self.assertEqual(exitcode, 0)
+
+    @unittest.skipIf(sys.platform != 'linux', "Don't have /dev/stdin")
+    def test_devstdin_input(self):
+
+        async def devstdin_input(message):
+            code = 'file = open("/dev/stdin"); data = file.read(); print(len(data))'
+            proc = await asyncio.create_subprocess_exec(
+                sys.executable, '-c', code,
+                stdin=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                close_fds=False,
+            )
+            stdout, stderr = await proc.communicate(message)
+            exitcode = await proc.wait()
+            return (stdout, exitcode)
+
+        output, exitcode = self.loop.run_until_complete(devstdin_input(b'abc'))
+        self.assertEqual(output.rstrip(), b'3')
         self.assertEqual(exitcode, 0)
 
     def test_cancel_process_wait(self):
