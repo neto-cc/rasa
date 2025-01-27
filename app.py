@@ -26,5 +26,5 @@ def chat():
 
 # アプリケーションを実行する部分
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))  # 環境変数 PORT が指定されていればそのポートを使用、無ければ 5000 番ポート
+    port = int(os.getenv("PORT", 5005))  # 環境変数 PORT が指定されていればそのポートを使用、無ければ 5000 番ポート
     app.run(host="0.0.0.0", port=port, debug=True)  # 外部アクセスを許可して、指定されたポートで実行
