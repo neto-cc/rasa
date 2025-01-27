@@ -5,7 +5,7 @@ description = "A chatbot for customer support using Rasa"
 
 [tool.poetry.dependencies]
 python = "^3.10.10"
-flask = "^3.1.0"
+flask = "^2.1.0"
 rasa = "^3.6.21"
 
 [build-system]
