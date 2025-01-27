@@ -6,11 +6,9 @@ env:
 
 services:
   - type: web
-    name: my-flask-app
+    name: rasa-app
     env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python app.py"
-    envVars:
-      - key: PORT
-        value: "5005"  # 必要なポート番号を指定
+    buildCommand: pip install -r requirements.txt
+    startCommand: rasa run --enable-api --cors "*" --port $PORT
+    port: 5005  # Renderがアクセスできるポート番号を指定
 
