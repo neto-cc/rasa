@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import requests
-import os
+import os  # os モジュールをインポートして、環境変数を取得
 
 app = Flask(__name__)
 
@@ -10,20 +10,13 @@ def home():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    # ユーザーからのメッセージを取得
     user_message = request.json.get("message")
-    
-    # Render で動作する Rasa サーバーの URL
-    rasa_url = os.getenv("RASA_URL", "https://rasa-vt1z.onrender.com/webhook")
-
-    # Rasa にメッセージを送信
     rasa_response = requests.post(
-        rasa_url,
+        "https://rasa-vt1z.onrender.com/webhook",
         json={"sender": "user", "message": user_message}
     )
     bot_response = rasa_response.json()
 
-    # Rasa の応答を確認
     if bot_response:
         reply = bot_response[0].get("text", "すみません、理解できませんでした。")
     else:
@@ -31,7 +24,7 @@ def chat():
 
     return jsonify({"response": reply})
 
+# アプリケーションを実行する部分
 if __name__ == "__main__":
-    # Render のポート設定を確認して、動的に設定
-    port = int(os.getenv("PORT", 10000))  # デフォルトで 5000 番ポート
-    app.run(host="0.0.0.0", port=port, debug=True)
+    port = int(os.getenv("PORT", 5000))  # 環境変数 PORT が指定されていればそのポートを使用、無ければ 5000 番ポート
+    app.run(host="0.0.0.0", port=port, debug=True)  # 外部アクセスを許可して、指定されたポートで実行
