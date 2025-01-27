@@ -1,7 +1,4 @@
 env:
   - name: PYTHON_VERSION
-<<<<<<< HEAD
-    value: "3.10.10"
-=======
-    value: "3.10.10"
->>>>>>> aef3376e01cbea150abc9c5377cf923f7ef68e56
+    value: "3.10"
+
