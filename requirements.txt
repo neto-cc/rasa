@@ -1,5 +1,5 @@
 
-flask
-requests
-rasa
+flask==2.1.0
+requests==2.32.3
+rasa==3.6.21
 
