@@ -9,6 +9,6 @@ services:
     name: rasa-app
     env: python
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: rasa run --enable-api --cors "*" --port $PORT  # ポート変数を使用
+    startCommand: rasa run --enable-api --cors "*" --port $PORT & python app.py  # rasaとFlaskを同時に起動
     autoDeploy: true
 
