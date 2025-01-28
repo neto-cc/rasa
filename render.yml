@@ -10,5 +10,4 @@ services:
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: rasa run --enable-api --cors "*" --port $PORT
-    port: 5005  # Renderがアクセスできるポート番号を指定
 

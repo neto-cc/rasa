@@ -33,8 +33,5 @@ def chat():
 
 # アプリケーションを実行する部分
 if __name__ == "__main__":
-    # 環境変数 PORT が指定されていればそのポートを使用、無ければ 5000 番ポートを使用
-    port = int(os.getenv("PORT", 5005))
-    
-    # Flask アプリケーションを実行
-    app.run(host="0.0.0.0", port=port, debug=True)  # 外部アクセスを許可して、指定されたポートで実行
+    port = int(os.getenv("PORT", 5000))  # 環境変数 PORT があれば使用し、デフォルトは 5000
+    app.run(host="0.0.0.0", port=port)

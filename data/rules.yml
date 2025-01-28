@@ -2,22 +2,12 @@ version: "3.1"
 
 rules:
 
-- rule: Fallback
+- rule: Say goodbye anytime the user says goodbye
   steps:
-  - intent: nlu_fallback
-  - action: utter_default
-  - action: action_back
+  - intent: goodbye
+  - action: utter_goodbye
 
-- rule: Reserve
-  condition:
-  # Condition that form is active.
-  - active_loop: reservation_form
+- rule: Say 'I am a bot' anytime the user challenges
   steps:
-  # Form is deactivated
-  - action: reservation_form
-  - active_loop: null
-  - slot_was_set:
-    - requested_slot: null
-  # The actions we want to run when the form is submitted.
-  - action: action_reservation_time
-  - action: action_restart
+  - intent: bot_challenge
+  - action: utter_iamabot
