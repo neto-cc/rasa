@@ -1,14 +1,14 @@
 env:
+  - name: PORT
+    value: "5005"  # Renderが使用するデフォルトポートを指定
   - name: PYTHON_VERSION
     value: "3.10.10"
-  - name: PORT
-    value: "5005"
 
 services:
   - type: web
     name: rasa-app
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: rasa run --enable-api --cors "*" --port $PORT  # Renderの環境変数PORTを使ってポートを指定
-    port: $PORT  # Renderが自動で設定するポート番号
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: rasa run --enable-api --cors "*" --port $PORT  # ポート変数を使用
+    autoDeploy: true
 
