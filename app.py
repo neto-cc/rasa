@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import requests
-import os  # os モジュールをインポートして、環境変数を取得
+import os
 
 app = Flask(__name__)
 
@@ -33,5 +33,5 @@ def chat():
 
 # アプリケーションを実行する部分
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))  # 環境変数 PORT が指定されていればそのポートを使用、無ければ 5000 番ポート
+    port = int(os.getenv("PORT", 5000))  # Render上のPORTを使う
     app.run(host="0.0.0.0", port=port, debug=True)  # 外部アクセスを許可して、指定されたポートで実行
