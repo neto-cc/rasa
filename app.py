@@ -33,5 +33,5 @@ def chat():
 
 # アプリケーションを実行する部分
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))  # Render上のPORTを使う
+    port = int(os.getenv("PORT", 5000))  # Flaskのポートを5000番に設定
     app.run(host="0.0.0.0", port=port, debug=True)  # 外部アクセスを許可して、指定されたポートで実行
