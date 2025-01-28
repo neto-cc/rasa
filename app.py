@@ -14,7 +14,7 @@ def chat():
     
     # Rasa サーバーの webhook URL を指定します
     rasa_response = requests.post(
-        "http://0.0.0.0:5005/webhook",  # Render 上の Rasa の URL
+        "https://rasa-vt1z.onrender.com/webhook",  # Render 上の Rasa の URL
         json={"sender": "user", "message": user_message}
     )
     
@@ -33,5 +33,5 @@ def chat():
 
 # アプリケーションを実行する部分
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))  # 環境変数 PORT があれば使用し、デフォルトは 5000
-    app.run(host="0.0.0.0", port=port)
+    port = int(os.getenv("PORT", 5005))  # 環境変数 PORT が指定されていればそのポートを使用、無ければ 5000 番ポート
+    app.run(host="0.0.0.0", port=port, debug=True)  # 外部アクセスを許可して、指定されたポートで実行

@@ -9,5 +9,6 @@ services:
     name: rasa-app
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: rasa run --enable-api --cors "*" --port $PORT
+    startCommand: rasa run --enable-api --cors "*" --port $PORT  # Renderの環境変数PORTを使ってポートを指定
+    port: $PORT  # Renderが自動で設定するポート番号
 
