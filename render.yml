@@ -6,11 +6,11 @@ env:
 
 services:
   - type: web
-    name: rasa-app
+    name: rasa-server
     env: python
-    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: |
-      rasa run --enable-api --cors "*" --port 5005 &  # Rasa サーバーをバックグラウンドで実行
-      python app.py  # Flask サーバーを実行
-    autoDeploy: true
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "rasa run --enable-api --cors '*' --port $PORT"
+    envVars:
+      - key: PORT
+        value: "5005"
 
