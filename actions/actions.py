@@ -1,27 +1,26 @@
-# This files contains your custom actions which can be used to run
-# custom Python code.
-#
-# See this guide on how to implement these action:
-# https://rasa.com/docs/rasa/custom-actions
+# actions.py
 
+from rasa_sdk import Action, Tracker
+from rasa_sdk.executor import CollectingDispatcher
+from rasa_sdk.events import SlotSet
+import asyncio
 
-# This is a simple example for a custom action which utters "Hello World!"
+class ActionPerformBackgroundTask(Action):
 
-# from typing import Any, Text, Dict, List
-#
-# from rasa_sdk import Action, Tracker
-# from rasa_sdk.executor import CollectingDispatcher
-#
-#
-# class ActionHelloWorld(Action):
-#
-#     def name(self) -> Text:
-#         return "action_hello_world"
-#
-#     def run(self, dispatcher: CollectingDispatcher,
-#             tracker: Tracker,
-#             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-#
-#         dispatcher.utter_message(text="Hello World!")
-#
-#         return []
+    def name(self) -> str:
+        return "action_perform_background_task"
+
+    async def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict):
+        # 長時間の処理（バックグラウンドワーク）を非同期で実行
+        result = await self.long_running_task()
+
+        # 結果をユーザーに通知
+        dispatcher.utter_message(text=f"バックグラウンドタスクの結果: {result}")
+
+        return []
+
+    async def long_running_task(self):
+        # ここでバックグラウンドで行う処理を記述
+        # 例えば、外部APIの呼び出しやデータベースの操作など
+        await asyncio.sleep(5)  # 例：5秒の待機
+        return "タスクが完了しました！"
