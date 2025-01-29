@@ -4,6 +4,8 @@ import os
 
 app = Flask(__name__)
 
+PORT = os.getenv("PORT", 5005)
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -34,4 +36,4 @@ def chat():
 # アプリケーションを実行する部分
 if __name__ == "__main__":
     port = int(os.getenv("PORT"))  # Flaskのポートを5000番に設定
-    app.run(debug=True) # 外部アクセスを許可して、指定されたポートで実行
+    app.run(host="0.0.0.0", port=PORT)
