@@ -2,36 +2,42 @@ version: "3.1"
 
 intents:
   - greet
-  - goodbye
-  - affirm
-  - deny
-  - mood_great
-  - mood_unhappy
-  - bot_challenge
+  - goodevening
+  - ask_reserve
+  - nlu_fallback
+  - thanks
+
+entities:
+  - Time
+
+slots:
+  reserv_time:
+    type: text
+    mappings:
+    - type: from_entity
+      entity: Time
 
 responses:
   utter_greet:
-  - text: "Hey! How are you?"
+    - text: "こんにちは！"
+  utter_goodevening:
+    - text: "こんばんは！"
+  utter_reserve:
+    - text: "予約したい時間を入力してください。"
+  utter_default:
+    - text: "すみません。よくわかりませんでした。"
+  utter_thanks:
+    - text: "どういたしまして！"
 
-  utter_cheer_up:
-  - text: "Here is something to cheer you up:"
-    image: "https://i.imgur.com/nGF1K8f.jpg"  
+forms:
+  reservation_form:
+    required_slots:
+      - reserv_time
 
-  utter_did_that_help:
-  - text: "Did that help you?"
-
-  utter_happy:
-  - text: "Great, carry on!"
-
-  utter_goodbye:
-  - text: "Bye"
-
-  utter_iamabot:
-  - text: "I am a bot, powered by Rasa."
+actions:
+  - action_reservation_time
+  - action_perform_background_task
 
 session_config:
   session_expiration_time: 60
   carry_over_slots_to_new_session: true
-
-actions:
-  - action_perform_background_task

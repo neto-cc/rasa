@@ -1,26 +1,26 @@
 # actions.py
 
+from typing import Any, Text, Dict, List
+
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
-from rasa_sdk.events import SlotSet
-import asyncio
 
-class ActionPerformBackgroundTask(Action):
 
-    def name(self) -> str:
-        return "action_perform_background_task"
+class ActionReservationTime(Action):
 
-    async def run(self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: dict):
-        # 長時間の処理（バックグラウンドワーク）を非同期で実行
-        result = await self.long_running_task()
+    def name(self) -> Text:
+        return "action_reservation_time"
 
-        # 結果をユーザーに通知
-        dispatcher.utter_message(text=f"バックグラウンドタスクの結果: {result}")
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        # スロット "reserv_time" の値を取得
+        time = tracker.slots.get("reserv_time")  # .get()を使用して安全に取得
+
+        if time:
+            dispatcher.utter_message(text="{}に予約を完了しました！".format(time))
+        else:
+            dispatcher.utter_message(text="予約の時間が見つかりませんでした。")
 
         return []
-
-    async def long_running_task(self):
-        # ここでバックグラウンドで行う処理を記述
-        # 例えば、外部APIの呼び出しやデータベースの操作など
-        await asyncio.sleep(5)  # 例：5秒の待機
-        return "タスクが完了しました！"
