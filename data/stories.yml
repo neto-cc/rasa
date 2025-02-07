@@ -2,6 +2,7 @@ version: "3.1"
 
 stories:
 
+<<<<<<< HEAD
 - story: happy path
   steps:
   - intent: greet
@@ -28,3 +29,29 @@ stories:
   - action: utter_did_that_help
   - intent: deny
   - action: utter_goodbye
+=======
+- story: Greeting
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - action: action_back
+
+- story: GoodEvening
+  steps:
+  - intent: goodevening
+  - action: utter_goodevening
+  - action: action_back
+
+- story: Ask Reservation
+  steps:
+  - intent: ask_reserve
+  - action: utter_reserve
+  - action: reservation_form
+  - active_loop: reservation_form
+
+- story: thankyou
+  steps:
+  - intent: thanks
+  - action: utter_thanks
+  - action: action_back
+>>>>>>> 6e28db407aa5f152179bb61e0db2e92e4e701795

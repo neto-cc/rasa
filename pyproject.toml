@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "line-bot"
+version = "0.1.0"
+description = "A chatbot for customer support using Rasa"
+
+[tool.poetry.dependencies]
+python = "^3.10.10"
+flask = "^2.1.0"
+requests = "^2.32.3"
+rasa = "^3.6.21"
+
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"

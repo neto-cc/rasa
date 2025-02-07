@@ -2,6 +2,7 @@ version: "3.1"
 
 intents:
   - greet
+<<<<<<< HEAD
   - goodbye
   - affirm
   - deny
@@ -28,6 +29,43 @@ responses:
 
   utter_iamabot:
   - text: "I am a bot, powered by Rasa."
+=======
+  - goodevening
+  - ask_reserve
+  - nlu_fallback
+  - thanks
+
+entities:
+  - Time
+
+slots:
+  reserv_time:
+    type: text
+    mappings:
+    - type: from_entity
+      entity: Time
+
+responses:
+  utter_greet:
+    - text: "こんにちは！"
+  utter_goodevening:
+    - text: "こんばんは！"
+  utter_reserve:
+    - text: "予約したい時間を入力してください。"
+  utter_default:
+    - text: "すみません。よくわかりませんでした。"
+  utter_thanks:
+    - text: "どういたしまして！"
+
+forms:
+  reservation_form:
+    required_slots:
+      - reserv_time
+
+actions:
+  - action_reservation_time
+  - action_perform_background_task
+>>>>>>> 6e28db407aa5f152179bb61e0db2e92e4e701795
 
 session_config:
   session_expiration_time: 60

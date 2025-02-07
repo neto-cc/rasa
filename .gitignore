@@ -1,0 +1,12 @@
+# 仮想環境フォルダを無視
+.venv/
+env/
+
+# Pythonキャッシュファイルを無視
+__pycache__/
+*.py[cod]
+
+# Ignore site-packages
+Lib/site-packages/**/*.dll
+Lib/site-packages/**/*.pyd
+

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # This file contains the different endpoints your bot can use.
 
 # Server where the models are pulled from.
@@ -40,3 +41,7 @@
 #  username: username
 #  password: password
 #  queue: queue
+=======
+action_endpoint:
+  url: "http://localhost:5055/webhook"
+>>>>>>> 6e28db407aa5f152179bb61e0db2e92e4e701795

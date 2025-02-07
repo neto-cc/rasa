@@ -1,6 +1,7 @@
 version: "3.1"
 
 nlu:
+<<<<<<< HEAD
 - intent: greet
   examples: |
     - hey
@@ -89,3 +90,40 @@ nlu:
     - are you a human?
     - am I talking to a bot?
     - am I talking to a human?
+=======
+
+- intent: greet
+  examples: |
+    - こんにちは
+    - おはようございます
+    - こんばんは
+    - やっほー
+    - Yo
+    - こん
+    - ちゃ
+
+- intent: thanks
+  examples: |
+    - ありがとうございます
+    - 助けてくれてありがとう
+    - 本当に感謝しています
+    - ご親切に感謝します
+    - どうもありがとう
+    - サンキュー
+    - ありがとう
+    - 助かった
+
+- intent: goodevening
+  examples: |
+    - こんばんは
+    - こんばんわ
+    - 今晩
+
+- intent: ask_reserve
+  examples: |
+    - 予約をする
+    - 予約をお願いします
+    - 予約をしたい
+    - 予約できますか？
+
+>>>>>>> 6e28db407aa5f152179bb61e0db2e92e4e701795

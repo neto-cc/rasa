@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # The config recipe.
 # https://rasa.com/docs/rasa/model-configuration/
 recipe: default.v1
@@ -48,3 +49,32 @@ policies:
 #     max_history: 5
 #     epochs: 100
 #     constrain_similarities: true
+=======
+recipe: default.v1
+language: ja
+pipeline:
+- name: SpacyNLP
+  model: ja_ginza
+- name: SpacyTokenizer
+- name: SpacyEntityExtractor
+- name: CountVectorsFeaturizer
+- name: CountVectorsFeaturizer
+  analyzer: char_wb
+  min_ngram: 1
+  max_ngram: 4
+- name: DIETClassifier
+  epochs: 50
+- name: EntitySynonymMapper
+- name: ResponseSelector
+  epochs: 50
+- name: FallbackClassifier
+  threshold: 0.5
+
+policies:
+- name: MemoizationPolicy
+- name: RulePolicy
+- name: TEDPolicy
+  max_history: 3
+  epochs: 50
+assistant_id: 20241205-181034-coal-bot
+>>>>>>> 6e28db407aa5f152179bb61e0db2e92e4e701795
