@@ -7,6 +7,6 @@ __pycache__/
 *.py[cod]
 
 # Ignore site-packages
-Lib/site-packages/**/*.dll
-Lib/site-packages/**/*.pyd
-
+Lib/site-packages/jaxlib/xla_extension.pyd
+Lib/site-packages/tensorflow/python/_pywrap_tensorflow_internal.pyd
+new_rasa_env/Lib/site-packages/clang/native/libclang.dll
