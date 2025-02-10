@@ -12,4 +12,3 @@ services:
         value: ${CHANNEL_ACCESS_TOKEN}
       - key: FIREBASE_KEY
         value: ${FIREBASE_KEY}
-    plan: free
