@@ -7,5 +7,3 @@ description = "A Rasa bot"
 python = "^3.10.10"
 rasa = "^3.6.21"
 
-[tool.poetry.dev-dependencies]
-pytest = "^6.2"
