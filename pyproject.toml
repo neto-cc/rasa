@@ -1,0 +1,11 @@
+[tool.poetry]
+name = "rasa-bot"
+version = "0.1.0"
+description = "A Rasa bot"
+
+[tool.poetry.dependencies]
+python = "^3.10.10"
+rasa = "^3.6.21"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2"
