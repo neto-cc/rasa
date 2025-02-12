@@ -1,42 +1,31 @@
-from typing import Any, Text, Dict, List
-import firebase_admin
-from firebase_admin import credentials, firestore
+import spacy
+from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
+from rasa_sdk import Action
+from rasa_sdk.events import SlotSet
 
-from rasa_sdk import Action, Tracker
-from rasa_sdk.executor import CollectingDispatcher
+# spaCyの軽量モデルを読み込む
+nlp = spacy.load("en_core_web_sm")
 
+# distilBERTのトークナイザーとモデルを読み込む
+tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
+model = DistilBertForSequenceClassification.from_pretrained('distilbert-base-uncased')
 
-# Firebase Firestore の初期化
-cred = credentials.Certificate("F:/line/etc/secrets/firebase-key.json")  # サービスアカウントキーのパスを指定
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+class ActionProcessText(Action):
+    def name(self) -> str:
+        return "action_process_text"
 
-class ActionReservationTime(Action):
+    def run(self, dispatcher, tracker, domain):
+        user_message = tracker.latest_message.get('text')
+        
+        # spaCyを使用してエンティティを抽出
+        doc = nlp(user_message)
+        entities = [ent.text for ent in doc.ents]
+        
+        # distilBERTを使用してテキスト分類
+        inputs = tokenizer(user_message, return_tensors='pt')
+        with torch.no_grad():
+            logits = model(**inputs).logits
+        category = torch.argmax(logits, dim=-1).item()
 
-    def name(self) -> Text:
-        return "action_reservation_time"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-
-        # スロット "reserv_time" の値を取得
-        time = tracker.get_slot("reserv_time")  # 安全に取得
-        user_id = tracker.sender_id  # ユーザーIDを取得
-
-        if time:
-            try:
-                # Firestore に予約情報を保存
-                db.collection("reservations").document(user_id).set({
-                    "user_id": user_id,
-                    "reservation_time": time
-                })
-
-                dispatcher.utter_message(text=f"{time} に予約を完了しました！")
-            except Exception as e:
-                dispatcher.utter_message(text="予約の保存中にエラーが発生しました。もう一度お試しください。")
-                print(f"Firestore 保存エラー: {e}")
-        else:
-            dispatcher.utter_message(text="予約の時間が見つかりませんでした。")
-
-        return []
+        # エンティティと分類結果をスロットに保存
+        return [SlotSet("extracted_entities", entities), SlotSet("message_category", category)]
