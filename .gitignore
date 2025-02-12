@@ -11,3 +11,4 @@ Lib/site-packages/jaxlib/xla_extension.pyd
 Lib/site-packages/tensorflow/python/_pywrap_tensorflow_internal.pyd
 new_rasa_env/Lib/site-packages/clang/native/libclang.dll
 Lib/site-packages/
+bfg-1.15.0.jar
