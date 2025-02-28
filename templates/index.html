@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Chat App</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* 基本的なページの背景色設定 */
+        body {
+            background-color: #f8f9fa;
+        }
+
+        /* チャットコンテナのスタイル */
+        .chat-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        /* メッセージの基本スタイル */
+        .message {
+            margin: 10px 0;
+        }
+
+        /* ユーザーメッセージのスタイル（右寄せ） */
+        .user-message {
+            text-align: right;
+            color: #007bff;
+        }
+
+        /* ボットメッセージのスタイル（左寄せ） */
+        .bot-message {
+            text-align: left;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <!-- チャットアプリのコンテナ -->
+    <div class="chat-container">
+        <h2 class="text-center">Chat with Rasa</h2>
+        <!-- チャット内容を表示するボックス -->
+        <div id="chat-box" style="height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;"></div>
+        <!-- ユーザー入力と送信ボタン -->
+        <div class="input-group mt-3">
+            <input type="text" id="user-input" class="form-control" placeholder="Type your message here">
+            <button class="btn btn-primary" id="send-btn">Send</button>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS + Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // DOM要素を取得
+        const chatBox = document.getElementById("chat-box"); // チャットボックス
+        const userInput = document.getElementById("user-input"); // ユーザー入力フィールド
+        const sendBtn = document.getElementById("send-btn"); // 送信ボタン
+
+        // メッセージを送信する関数
+        function sendMessage() {
+            const message = userInput.value; // ユーザーの入力値を取得
+            if (message.trim()) {
+                // ユーザーメッセージをチャットボックスに追加
+                const userMessage = document.createElement("div");
+                userMessage.className = "message user-message";
+                userMessage.textContent = message;
+                chatBox.appendChild(userMessage);
+
+                // 入力フィールドをクリア
+                userInput.value = "";
+
+                // チャットボックスを一番下までスクロール
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                // Flaskエンドポイントにメッセージを送信
+                fetch("/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message }) // JSON形式で送信
+                })
+                .then(response => response.json()) // レスポンスをJSONとして解析
+                .then(data => {
+                    // ボットメッセージをチャットボックスに追加
+                    const botMessage = document.createElement("div");
+                    botMessage.className = "message bot-message";
+                    botMessage.textContent = data.response;
+                    chatBox.appendChild(botMessage);
+
+                    // チャットボックスを一番下までスクロール
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                })
+                .catch(error => console.error("Error:", error)); // エラーが発生した場合にログを出力
+            }
+        }
+
+        // 送信ボタンがクリックされたときにメッセージを送信
+        sendBtn.addEventListener("click", sendMessage);
+
+        // Enterキーが押されたときにメッセージを送信
+        userInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

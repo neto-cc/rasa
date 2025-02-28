@@ -1,0 +1,36 @@
+# 仮想環境フォルダを無視
+.venv/
+env/
+
+# Pythonキャッシュファイルを無視
+__pycache__/
+*.py[cod]
+
+# Ignore site-packages
+Lib/site-packages/jaxlib/xla_extension.pyd
+Lib/site-packages/tensorflow/python/_pywrap_tensorflow_internal.pyd
+new_rasa_env/Lib/site-packages/clang/native/libclang.dll
+Lib/
+.rasa/
+DLLs/
+Doc/
+Scripts/
+share/
+tcl/
+Tools/
+include/
+libs/
+y/
+bfg-1.15.0.jar
+
+
+# Pythonの実行ファイル関連
+vcruntime*.dll
+
+# Pythonのライセンス・ドキュメント関連
+LICENSE.txt
+NEWS.txt
+runtime.txt
+
+# 機密情報（アップロード禁止推奨）
+.env
