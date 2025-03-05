@@ -1,0 +1,43 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodevening
+  - ask_reserve
+  - nlu_fallback
+  - thanks
+
+entities:
+  - Time
+
+slots:
+  reserv_time:
+    type: text
+    mappings:
+    - type: from_entity
+      entity: Time
+
+responses:
+  utter_greet:
+    - text: "こんにちは！"
+  utter_goodevening:
+    - text: "こんばんは！"
+  utter_reserve:
+    - text: "予約したい時間を入力してください。"
+  utter_default:
+    - text: "すみません。よくわかりませんでした。"
+  utter_thanks:
+    - text: "どういたしまして！"
+
+forms:
+  reservation_form:
+    required_slots:
+      - reserv_time
+
+
+actions:
+  - action_reservation_time
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

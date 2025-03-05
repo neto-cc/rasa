@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: rasa-server
+    env: docker
+    repo: https://github.com/neto-cc/rasa.git  # 自分のGitHubリポジトリに変更
+    branch: main
+    plan: free
+    region: oregon
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "rasa run --enable-api --cors '*' --port $PORT"
+    envVars:
+      - key: PORT
+        value: 3001

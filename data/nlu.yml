@@ -1,0 +1,36 @@
+version: "3.1"
+
+nlu:
+
+- intent: greet
+  examples: |
+    - こんにちは
+    - おはようございます
+    - やっほー
+    - Yo
+    - こん
+    - ちゃ
+
+- intent: thanks
+  examples: |
+   - ありがとうございます
+   - 助けてくれてありがとう
+   - 本当に感謝しています
+   - ご親切に感謝します
+   - どうもありがとう
+   - サンキュー
+   - ありがとう
+   - 助かった
+
+- intent: goodevening
+  examples: |
+    - こんばんは
+    - こんばんわ
+    - 今晩
+
+- intent: ask_reserve
+  examples: |
+    - 予約をする
+    - 予約をお願いします
+    - 予約をしたい
+    - 予約できますか？
