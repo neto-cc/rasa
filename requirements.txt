@@ -3,4 +3,5 @@ requests
 firebase-admin
 rasa
 gunicorn
-
+spacy
+ja_ginza
