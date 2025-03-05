@@ -1,6 +1,5 @@
-flask
+﻿flask
 requests
 firebase-admin
 rasa
 gunicorn
-

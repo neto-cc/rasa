@@ -1,28 +1,19 @@
-version: "3.1"
+﻿version: "3.1"
 
 stories:
 
-- story: Greeting
+
+- story: オープンキャンパス_応答
   steps:
-  - intent: greet
-  - action: utter_greet
+  - intent: オープンキャンパス
+  - action: utter_オープンキャンパス
   - action: action_back
 
-- story: GoodEvening
+
+- story: 年間行事_応答
   steps:
-  - intent: goodevening
-  - action: utter_goodevening
+  - intent: 年間行事
+  - action: utter_年間行事
   - action: action_back
 
-- story: Ask Reservation
-  steps:
-  - intent: ask_reserve
-  - action: utter_reserve
-  - action: reservation_form
-  - active_loop: reservation_form
 
-- story: thankyou
-  steps:
-  - intent: thanks
-  - action: utter_thanks
-  - action: action_back

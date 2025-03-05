@@ -1,3 +1,2 @@
-action_endpoint:
+﻿action_endpoint:
   url: "http://localhost:3001/webhook"
-
