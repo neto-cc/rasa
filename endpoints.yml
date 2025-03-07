@@ -1,2 +1,2 @@
 action_endpoint:
-  url: "https://rasa-vt1z.onrender.com/webhook"
+  url: "http://localhost:3001/webhook"
