@@ -3,5 +3,3 @@ requests
 firebase-admin
 rasa
 gunicorn
-spacy==3.5.3
-ja-ginza
