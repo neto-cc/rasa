@@ -1,14 +1,2 @@
 action_endpoint:
-  url: "http://localhost:3001/webhook"
-
-
-channels:
-  line:
-    type: "line_connector.LineInput"
-    access_token: "BTN1AxWHvRj0TZ0RIR/Ul4o0YJMn6I07VTT0BcYeliQJfXlZmRR62G599T1qcojvP/nQFKH2aqa14UiYO7OCNsT7UKFJhU6OB8itSzRB282M9Js6vdW7cVwBdRjaKZmyVq7+AjvCVOoBufRrtZlJ7AdB04t89/1O/w1cDnyilFU="
-    channel_secret: "e1ac90592056c3c16efdd3797fc28fb9"
-
-
-input:
-  line:
-    webhook: "https://linebot-next.onrender.com/webhook"
+  url: "https://rasa-vt1z.onrender.com/webhook"
